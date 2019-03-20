@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import "bootstrap/dist/css/bootstrap.css";
+
 import Dropzone from './components/Dropzone';
 import Table from './components/Table';
 
@@ -21,9 +23,11 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <main>
-           <Dropzone callback={this.gotData} />
-           {this.state.data && <Table data={this.state.data} />}
+        <main className="container-fluid">
+          <div className="mt-4">
+            <Dropzone callback={this.gotData} />
+          </div>
+          {this.state.data && <Table data={this.state.data} />}
         </main>
       </div>
     );

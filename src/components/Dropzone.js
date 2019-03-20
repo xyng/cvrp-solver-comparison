@@ -18,9 +18,9 @@ export default function Dropzone(props) {
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
   return (
-    <div {...getRootProps()}>
+    <div className="border border-primary rounded p-4" {...getRootProps()}>
       <input {...getInputProps()} />
-      <p>Drag 'n' drop some files here, or click to select files</p>
+      <p class="lead mb-0 text-primary">Drag 'n' drop or click and select file</p>
     </div>
   )
 }

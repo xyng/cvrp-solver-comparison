@@ -9,6 +9,9 @@ function pad(n, z) {
 }
 
 function nsToTime(s) {
+  const negative = s < 0;
+  s = Math.abs(s);
+
   var ns = s % 1000;
   s = (s - ns) / 1000;
   var mics = s % 1000;
@@ -16,7 +19,7 @@ function nsToTime(s) {
   var ms = s % 1000;
   s = (s - ms) / 1000;
 
-  return pad(s, 2) + ':' + pad(ms, 3);
+  return (negative ? '- ' : '') + pad(s, 2) + ':' + pad(ms, 3);
 }
 
 export default class Table extends React.Component {
@@ -83,7 +86,7 @@ export default class Table extends React.Component {
 
     return (
       <div>
-        <p>Showing Results of {data.length} Instances</p>
+        <p className="lead my-3">Showing Results of {data.length} Instances</p>
         <ReactTable
           data={data}
           columns={columns}
