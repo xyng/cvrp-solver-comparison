@@ -18,8 +18,11 @@ function nsToTime(s) {
   s = (s - mics) / 1000;
   var ms = s % 1000;
   s = (s - ms) / 1000;
+  var s = s % 60;
+  s = (s - s) / 60;
+  var m = s % 60;
 
-  return (negative ? '- ' : '') + pad(s, 2) + ':' + pad(ms, 3);
+  return (negative ? '- ' : '') + pad(m, 2) + ':' + pad(s, 2) + ':' + pad(ms, 3);
 }
 
 export default class Table extends React.Component {
