@@ -48,7 +48,8 @@ export default class Table extends React.Component {
       console.log(data);
       Object.entries(data).forEach(([solverName, measurement]) => {
         rows.push([
-          `${instanceName}: ${solverName}`,
+          instanceName,
+          solverName,
           measurement.value,
           measurement.time
         ])
@@ -56,7 +57,7 @@ export default class Table extends React.Component {
     })
 
     stringify([
-      ['Name', 'Cost', 'Time'],
+      ['Instance', 'Name', 'Cost', 'Time'],
       ...rows
     ], function(err, output){
       const blob = new Blob([output], {type: "text/csv;charset=utf-8"});
