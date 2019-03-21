@@ -20,7 +20,7 @@ export default function Dropzone(props) {
   return (
     <div className="border border-primary rounded p-4" {...getRootProps()}>
       <input {...getInputProps()} />
-      <p class="lead mb-0 text-primary">Drag 'n' drop or click and select file</p>
+      <p className="lead mb-0 text-primary">Drag 'n' drop or click and select file</p>
     </div>
   )
 }
