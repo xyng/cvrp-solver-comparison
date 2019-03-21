@@ -3,6 +3,9 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import SelectAB from './SelectAB'
 
+import stringify from 'csv-stringify'
+import FileSaver from 'file-saver'
+
 // Pad to 2 or 3 digits, default is 2
 function pad(n, z) {
   z = z || 2;
@@ -38,13 +41,37 @@ export default class Table extends React.Component {
     })
   }
 
+  exportToCSV = () => {
+    const rows = []
+
+    Object.entries(this.props.data.results).forEach(([instanceName, data]) => {
+      console.log(data);
+      Object.entries(data).forEach(([solverName, measurement]) => {
+        rows.push([
+          `${instanceName}: ${solverName}`,
+          measurement.value,
+          measurement.time
+        ])
+      })
+    })
+
+    stringify([
+      ['Name', 'Cost', 'Time'],
+      ...rows
+    ], function(err, output){
+      const blob = new Blob([output], {type: "text/csv;charset=utf-8"});
+      FileSaver.saveAs(blob, "export.csv");
+    })
+  }
+
   render() {
     const rawData = this.props.data;
 
     const data = Object.entries(rawData.results).map(([key, value]) => {
-      value.instance = key;
+      const newVal = Object.assign({}, value)
+      newVal.instance = key;
 
-      return value;
+      return newVal;
     });
 
     const solverColumns = [];
@@ -105,6 +132,7 @@ export default class Table extends React.Component {
     return (
       <div>
         <p className="lead my-3">Showing Results of {data.length} Instances</p>
+        <button onClick={this.exportToCSV} className="btn btn-primary">Grab CSV</button>
         <SelectAB solvers={rawData.solvers} onUpdate={this.updateAB} />
         <ReactTable
           data={data}
