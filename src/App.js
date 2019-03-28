@@ -5,7 +5,7 @@ import './App.css';
 import "bootstrap/dist/css/bootstrap.css";
 
 import Dropzone from './components/Dropzone';
-import Table from './components/Table';
+import ShowData from './components/ShowData';
 
 class App extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class App extends Component {
           <div className="mt-4">
             <Dropzone callback={this.gotData} />
           </div>
-          {this.state.data && <Table data={this.state.data} />}
+          {this.state.data && <ShowData data={this.state.data} />}
         </main>
       </div>
     );

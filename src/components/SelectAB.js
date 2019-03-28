@@ -1,13 +1,14 @@
 import React from "react"
 
+import Select from "./Select"
+
 export default class SelectAB extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
-  handleChangeA = (event) => {
-    let value = event.target.value;
+  handleChangeA = (value) => {
     if (value.length === 0) {
       value = undefined
     }
@@ -19,8 +20,7 @@ export default class SelectAB extends React.Component {
     });
   }
 
-  handleChangeB = (event) => {
-    let value = event.target.value;
+  handleChangeB = (value) => {
     if (value.length === 0) {
       value = undefined
     }
@@ -37,23 +37,23 @@ export default class SelectAB extends React.Component {
 
     return (
       <div className="row mb-4">
-        <div className="form-group col-6">
-          <label htmlFor="compareASelect">Compare A:</label>
-          <select id="compareASelect" className="custom-select" value={this.state.compareA} onChange={this.handleChangeA}>
-            <option value="">Select Solver to compare</option>
-            {solvers.filter(solver => solver !== this.state.compareB).map(solver => (
-              <option key={'compareASelect-' + solver} value={solver}>{solver}</option>
-            ))}
-          </select>
+        <div className="col-6">
+          <Select
+            options={solvers.filter(solver => solver !== this.state.compareB)}
+            label="Compare A:"
+            empty="Select Solver to compare"
+            name="compareA"
+            onUpdate={this.handleChangeA}
+          />
         </div>
-        <div className="form-group col-6">
-          <label htmlFor="compareBSelect">Compare B:</label>
-          <select id="compareBSelect" className="custom-select" value={this.state.compareB} onChange={this.handleChangeB}>
-            <option value="">Select Solver to compare</option>
-            {solvers.filter(solver => solver !== this.state.compareA).map(solver => (
-              <option key={'compareBSelect-' + solver} value={solver}>{solver}</option>
-            ))}
-          </select>
+        <div className="col-6">
+          <Select
+            options={solvers.filter(solver => solver !== this.state.compareA)}
+            label="Compare B:"
+            empty="Select Solver to compare"
+            name="compareB"
+            onUpdate={this.handleChangeB}
+          />
         </div>
        </div>
     )
