@@ -3,6 +3,9 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import SelectAB from './SelectAB'
 
+import stringify from 'csv-stringify'
+import FileSaver from 'file-saver'
+
 // Pad to 2 or 3 digits, default is 2
 function pad(n, z) {
   z = z || 2;
@@ -35,38 +38,85 @@ export default class Table extends React.Component {
   updateAB = (compareA, compareB) => {
     this.setState({
       compareA, compareB
+    }, () => {
+      this.setState(Table.updateColumns(this.props, this.state))
     })
   }
 
-  render() {
-    const rawData = this.props.data;
+  static getDerivedStateFromProps(props, state) {
+    return {
+      ...state,
+      ...Table.updateColumns(props, state)
+    }
+  }
 
-    const data = Object.entries(rawData.results).map(([key, value]) => {
-      const newVal = Object.assign({}, value)
-      newVal.instance = key;
+  exportToCSV = () => {
+        const rows = {}
+        const headers = []
 
-      return newVal;
-    });
+        const rawData = this.props.data;
+        const data = Object.entries(rawData.results).map(([key, value]) => {
+          const newVal = Object.assign({}, value)
+          newVal.instance = key;
 
-    const solverColumns = [];
+          return newVal;
+        });
 
-    rawData.solvers.forEach((elem) => {
-      solverColumns.push({
-        Header: elem,
-        columns: [{
-          Header: 'Cost',
-          accessor: elem + '.value',
-          Cell: props => <span className='number'>{(props.value || Infinity).toFixed(2)}</span>
-        }, {
-          Header: elem,
-          accessor: elem + '.time',
-          Cell: props => <span className='number'>{nsToTime(props.value)}</span>
-        }]
-      })
-    });
+        this.state.columns.forEach(elem => {
+          if (elem.columns) {
+            elem.columns.forEach(column => {
+              data.forEach(value => {
+                rows[value.instance] = [
+                  ...(rows[value.instance] || []),
+                  column.accessor(value)
+                ]
+              })
+              headers.push(`${elem.Header} - ${column.Header}`)
+            })
+          } else {
+            headers.push(elem.Header)
+
+            data.forEach(value => {
+              rows[value.instance] = [
+                ...(rows[value.instance] || []),
+                elem.accessor(value)
+              ]
+            })
+          }
+        })
+
+        stringify([
+          headers,
+          ...(Object.values(rows))
+        ], function(err, output){
+          const blob = new Blob([output], {type: "text/csv;charset=utf-8"});
+          FileSaver.saveAs(blob, "export.csv");
+        })
+    }
+
+  static updateColumns(props, state) {
+    const rawData = props.data;
+
+    const { compareA, compareB } = state;
+
+    const solverColumns = rawData.solvers.filter(elem => {
+      return (!compareA || !compareB) || (elem === compareA || elem === compareB)
+    }).map((elem) => ({
+      Header: elem,
+      columns: [{
+        Header: 'Cost',
+        id: `${elem}-value`,
+        accessor: d => d[elem].value,
+        Cell: props => <span className='number'>{(props.value || Infinity).toFixed(2)}</span>
+      }, {
+        Header: 'Time',
+        id: `${elem}-time`,
+        accessor: d => d[elem].time,
+        Cell: props => <span className='number'>{nsToTime(props.value)}</span>
+      }]
+    }));
 
     const compareColumns = [];
-    const { compareA, compareB } = this.state;
     if (compareA && compareB) {
       compareColumns.push({
         Header: `${compareA} - ${compareB}`,
@@ -97,15 +147,33 @@ export default class Table extends React.Component {
     const columns = [
       {
         Header: 'Instance',
-        accessor: 'instance'
+        id: 'instance',
+        accessor: d => d.instance
       },
       ...solverColumns,
       ...compareColumns
     ];
 
+    return {
+      columns
+    }
+  }
+
+  render() {
+    const { columns, compareA, compareB } = this.state
+    const rawData = this.props.data
+
+    const data = Object.entries(rawData.results).map(([key, value]) => {
+      const newVal = Object.assign({}, value)
+      newVal.instance = key;
+
+      return newVal;
+    });
+
     return (
       <div>
         <p className="lead my-3">Showing Results of {data.length} Instances</p>
+        <button className="btn btn-primary" onClick={this.exportToCSV}>CSV</button>
         <SelectAB solvers={rawData.solvers} onUpdate={this.updateAB} />
         <ReactTable
           data={data}
